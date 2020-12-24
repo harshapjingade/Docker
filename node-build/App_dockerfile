@@ -1,0 +1,36 @@
+FROM node
+USER root
+
+ARG NPM_CONFIG_AUTH
+ARG NPM_USER
+
+ENV NPM_CONFIG_AUTH=${NPM_CONFIG_AUTH}
+ENV NPM_USER=${NPM_USER}
+
+RUN mkdir /node
+RUN mkdir /app
+WORKDIR /app
+COPY . .
+
+COPY .npmrc /app/
+COPY client/.npmrc /app/client/
+COPY server/.npmrc /app/server/
+COPY package.json /app/
+COPY client/package.json /app/client/
+COPY server/package.json /app/server/
+
+RUN npm cache clean -f
+RUN cd /app && rm -rf node_modules && rm -rf package-lock.json
+RUN cd /app/client && rm -rf node_modules && rm -rf package-lock.json
+RUN cd /app/server && rm -rf node_modules && rm -rf package-lock.json
+
+RUN npm install
+RUN npm run install:client
+RUN npm run install:server
+
+RUN cd /app && rm -rf package-lock.json
+RUN cd /app/client && rm -rf package-lock.json
+RUN cd /app/server && rm -rf package-lock.json
+
+EXPOSE 3000
+CMD ["npm","run","start:prod"]
