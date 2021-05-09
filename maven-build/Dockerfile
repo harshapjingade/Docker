@@ -1,4 +1,4 @@
-From openjdk:7
+FROM openjdk:7
 
 COPY --chown=1000 target/dummy-*.jar /apps/dummy.jar
 
